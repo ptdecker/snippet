@@ -10,6 +10,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello from Snippetbox"))
 }
 
+// showSnippet handler
+func showSnippet(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Display a specific snippet..."))
+}
+
+// createSnippet handler
+func createSnippet(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Create a new snippet..."))
+}
+
 func main() {
 
 	// Initialize new server mux
@@ -17,6 +27,8 @@ func main() {
 
 	// Register home page route
 	mux.HandleFunc("/", home)
+	mux.HandleFunc("/snippet", showSnippet)
+	mux.HandleFunc("/snippet/create", createSnippet)
 
 	// Launch server
 	log.Println("Starting server on :4000")
