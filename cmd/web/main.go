@@ -1,3 +1,7 @@
+/*
+ * Basic web site project based upon "Lets Go" book
+ */
+
 package main
 
 import (
@@ -50,7 +54,8 @@ func main() {
 	mux.HandleFunc("/snippet/create", app.createSnippet)
 
 	// Create a file server to serve static content
-	fileServer := http.FileServer(http.Dir(cfg.staticDir))
+	fileServer := http.FileServer(neuteredFileSystem{http.Dir(cfg.staticDir)})
+	mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// Set up our new http.Server leveraging our leveled logging
