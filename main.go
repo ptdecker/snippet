@@ -7,6 +7,13 @@ import (
 
 // Home page handler
 func home(w http.ResponseWriter, r *http.Request) {
+
+	// Site-wide 404 handler
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	w.Write([]byte("Hello from Snippetbox"))
 }
 
