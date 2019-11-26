@@ -45,24 +45,11 @@ func main() {
 		errorLog: errorLog,
 	}
 
-	// Initialize new server mux
-	mux := http.NewServeMux()
-
-	// Register home page route
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
-
-	// Create a file server to serve static content
-	fileServer := http.FileServer(neuteredFileSystem{http.Dir(cfg.staticDir)})
-	mux.Handle("/static", http.NotFoundHandler())
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
 	// Set up our new http.Server leveraging our leveled logging
 	srv := &http.Server{
 		Addr:     cfg.addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(),
 	}
 
 	// Launch server
