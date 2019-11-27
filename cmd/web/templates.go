@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"path/filepath"
 	"text/template"
 	"time"
@@ -12,6 +13,8 @@ import (
 // HTML templates. 'CurrentYear' is an example of common dynamic data
 type templateData struct {
 	CurrentYear int
+	FormData    url.Values
+	FormErrors  map[string]string
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
