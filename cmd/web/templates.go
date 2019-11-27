@@ -8,10 +8,11 @@ import (
 )
 
 // templateData acts as a holding structure for any dynamic data passed to
-// HTML templates.
+// HTML templates. 'CurrentYear' is an example of common dynamic data
 type templateData struct {
-	Snippet  *models.Snippet
-	Snippets []*models.Snippet
+	CurrentYear int
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
 }
 
 // newTemplateCache creates a new template cache

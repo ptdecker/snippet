@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // serverError helper writes an error message and stack trace to the errorLog,
@@ -26,6 +27,17 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// addDefaultData adds default common data to the passed template structure
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	if td == nil {
+		td = &templateData{}
+	}
+
+	// Populate common data
+	td.CurrentYear = time.Now().Year()
+	return td
+}
+
 // render helper renders a page based upon templates from our cache.  It first
 // renders the page to a buffer to trap render errors.  If succesful displays
 // the page; otherwise, gracefully fails
@@ -42,8 +54,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	// Initialize a buffer to hold the trial rendered page
 	buf := new(bytes.Buffer)
 
-	// Execute the template set passing in any dynamic data
-	err := ts.Execute(buf, td)
+	// Execute the template set passing in any dynamic data.  Inject into
+	// the dynamic data any common data
+	err := ts.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
 		app.serverError(w, err)
 		return
