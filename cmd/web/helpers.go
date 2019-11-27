@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -20,12 +21,14 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-// notFound helper is a convenience wrapper around clientError t0 send a 404
+// notFound helper is a convenience wrapper around clientError to send a 404
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-// render helper renders a page based upon templates from our cache
+// render helper renders a page based upon templates from our cache.  It first
+// renders the page to a buffer to trap render errors.  If succesful displays
+// the page; otherwise, gracefully fails
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 
 	// Retrieve template set from cache based upon teh page name.  If no entry
@@ -36,9 +39,16 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
+	// Initialize a buffer to hold the trial rendered page
+	buf := new(bytes.Buffer)
+
 	// Execute the template set passing in any dynamic data
-	err := ts.Execute(w, td)
+	err := ts.Execute(buf, td)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
+
+	// Write out the page
+	buf.WriteTo(w)
 }
