@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"ptodd.org/snippetbox/pkg/models"
 )
 
 // Home page handler
@@ -45,7 +48,20 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+	// Use the model's get method to receive a record based upon its ID then
+	// return the record or a 404
+	s, err := app.snippets.Get(id)
+	if err != nil && errors.Is(err, models.ErrNoRecord) {
+		app.notFound(w)
+		return
+	}
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// Write the snippet data as plain-text HTTP response body
+	fmt.Fprintf(w, "%v", s)
 }
 
 // createSnippet handler
