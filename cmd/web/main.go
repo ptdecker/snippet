@@ -12,6 +12,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"ptodd.org/snippetbox/pkg/models/mysql"
 )
 
 // Config retains passed command-line flags
@@ -25,6 +26,7 @@ type config struct {
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *mysql.SnippetModel
 }
 
 var cfg *config
@@ -55,6 +57,7 @@ func main() {
 	app := &application{
 		infoLog:  infoLog,
 		errorLog: errorLog,
+		snippets: &mysql.SnippetModel{DB: db},
 	}
 
 	// Set up our new http.Server leveraging our leveled logging
