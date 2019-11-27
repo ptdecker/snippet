@@ -3,6 +3,7 @@ package main
 import (
 	"path/filepath"
 	"text/template"
+	"time"
 
 	"ptodd.org/snippetbox/pkg/models"
 )
@@ -13,6 +14,19 @@ type templateData struct {
 	CurrentYear int
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
+}
+
+// Initialize a tempate.FuncMap object for registering custom functions for
+// use inside templates
+var functions = template.FuncMap{
+	"humanDate": humanDate,
+}
+
+// humanDate returns a human-friendly formated string representation of a
+// time.Time object. This function provides an example of how to use custom
+// functions in a template
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
 }
 
 // newTemplateCache creates a new template cache
@@ -34,7 +48,7 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		// Parse the page tempate file
-		ts, err := template.ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
