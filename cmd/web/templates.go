@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net/url"
 	"path/filepath"
 	"text/template"
 	"time"
 
+	"ptodd.org/snippetbox/pkg/forms"
 	"ptodd.org/snippetbox/pkg/models"
 )
 
@@ -13,8 +13,7 @@ import (
 // HTML templates. 'CurrentYear' is an example of common dynamic data
 type templateData struct {
 	CurrentYear int
-	FormData    url.Values
-	FormErrors  map[string]string
+	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }

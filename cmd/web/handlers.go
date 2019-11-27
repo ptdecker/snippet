@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
+	"ptodd.org/snippetbox/pkg/forms"
 	"ptodd.org/snippetbox/pkg/models"
 )
 
@@ -63,50 +62,23 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve relevant data fields
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires := r.PostForm.Get("expires")
-
-	// Set up a map to hold validation errors
-	errors := make(map[string]string)
-
-	// *** Perform field validations ***
-
-	// Title must not be blank and not more than 100 characters long
-	if strings.TrimSpace(title) == "" {
-		errors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		errors["title"] = "This field is too long (maximum is 100 characters)"
-	}
-
-	// Content must not be blank
-	if strings.TrimSpace(content) == "" {
-		errors["content"] = "This field cannot be blank"
-	}
-
-	// Expires must not be blank and must have the value of 1, 7, or 365
-	// TODO: Add support for leap years
-	if strings.TrimSpace(expires) == "" {
-		errors["expires"] = "This field cannot be blank"
-	} else if expires != "365" && expires != "7" && expires != "1" {
-		errors["expires"] = "This field is invalid"
-	}
-
-	// *** End of field validations ***
+	form := forms.New(r.PostForm)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 100)
+	form.PermittedValues("expires", "1", "7", "365")
 
 	// Handle errors if any were encountered
 	// If there are any errors, re-display the template passing to it the
 	// validation errors and previously submitted form data
-	if len(errors) > 0 {
+	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{
-			FormErrors: errors,
-			FormData:   r.PostForm,
+			Form: form,
 		})
 		return
 	}
 
 	// Insert the record through our model and receive back the ID of the new record
-	id, err := app.snippets.Insert(title, content, expires)
+	id, err := app.snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -117,5 +89,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 // createSnippetForm handler
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.tmpl", nil)
+	app.render(w, r, "create.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
