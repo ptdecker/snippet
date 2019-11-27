@@ -17,5 +17,6 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// log the request, add security headers, then handle the request
-	return app.logRequest(secureHeaders(mux))
+	// also provides panic recovery as first thing
+	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 }
