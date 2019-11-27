@@ -1,20 +1,25 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/bmizerany/pat"
+)
 
 func (app *application) routes() http.Handler {
 	// Initialize new server mux
-	mux := http.NewServeMux()
+
+	mux := pat.New()
 
 	// Register home page route
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
+	mux.Get("/", http.HandlerFunc(app.home))
+	// mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
+	mux.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
+	mux.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
 
 	// Create a file server to serve static content
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir(cfg.staticDir)})
-	mux.Handle("/static", http.NotFoundHandler())
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	// log the request, add security headers, then handle the request
 	// also provides panic recovery as first thing

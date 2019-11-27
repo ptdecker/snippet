@@ -7,6 +7,9 @@
 // 	})
 // }
 
+//TODO: Consider leveraging https://github.com/justinas/alice to simplify the middleware
+//      handler chain as suggested in "Let's Go" 6.5
+
 package main
 
 import "net/http"
