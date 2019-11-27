@@ -53,10 +53,17 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 // createSnippet handler
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
-	// Dummy data
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly, slowly!\n\n- Kobayashi Issa"
-	expires := "7"
+	// Add any data in POST (works for PUT and PATCH) bodies to the r.PostForm map
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve relevant data fields
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+	expires := r.PostForm.Get("expires")
 
 	// Insert the record through our model and receive back the ID of the new record
 	id, err := app.snippets.Insert(title, content, expires)
@@ -66,4 +73,9 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
+}
+
+// createSnippetForm handler
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "create.page.tmpl", nil)
 }

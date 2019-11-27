@@ -1,3 +1,5 @@
+// c.f. https://vluxe.io/golang-router.html for a reference implementation of a basic custom router
+
 package main
 
 import (
@@ -13,7 +15,7 @@ func (app *application) routes() http.Handler {
 
 	// Register home page route
 	mux.Get("/", http.HandlerFunc(app.home))
-	// mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
+	mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
 	mux.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
 	mux.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
 
