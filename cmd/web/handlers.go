@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -19,23 +18,33 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse templates
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
+	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// Write template as the respnose body
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err)
+	for _, snippet := range s {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	// // Parse templates
+	// files := []string{
+	// 	"./ui/html/home.page.tmpl",
+	// 	"./ui/html/base.layout.tmpl",
+	// 	"./ui/html/footer.partial.tmpl",
+	// }
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+
+	// // Write template as the respnose body
+	// err = ts.Execute(w, nil)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// }
 }
 
 // showSnippet handler

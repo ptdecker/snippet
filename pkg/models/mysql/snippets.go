@@ -59,5 +59,44 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 
 // Latest returns the 10 most recently created snippits
 func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
-	return nil, nil
+
+	// Select SQL to retreive a row from the snippets table
+	stmt := `SELECT id, title, content, created, expires
+				FROM snippets
+				WHERE expires > UTC_TIMESTAMP()
+				ORDER BY created DESC
+				LIMIT 10`
+
+	// Use Query() on the connection pool to to execute our query and
+	// return a set of records in sql.Rows
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize structure to hold the returned data set
+	snippets := []*models.Snippet{}
+
+	// Iterate through the returned data
+	for rows.Next() {
+		// Initialize structure to hold a single returned row
+		s := &models.Snippet{}
+
+		// Use row.Scan() to copy attributes from returned record
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+
+		// Append it to the slice we will return
+		snippets = append(snippets, s)
+	}
+
+	// Check for errors
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return snippets, nil
 }
