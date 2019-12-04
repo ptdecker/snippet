@@ -11,8 +11,10 @@ import (
 	"net/http"
 	"os"
 	"text/template"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 	"ptodd.org/snippetbox/pkg/models/mysql"
 )
 
@@ -21,12 +23,14 @@ type config struct {
 	addr      string
 	staticDir string
 	dsn       string
+	secret    string
 }
 
 // Application struct is used for application-wide dependencies
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
 }
@@ -39,6 +43,7 @@ func init() {
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
 	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.StringVar(&cfg.dsn, "dsn", "web:snippet@/snippetbox?parseTime=true", "MySQL data source name")
+	flag.StringVar(&cfg.secret, "secret", "2pf1tyu8dT19yjHhuNozkSY67KJnR4lG", "Secret key")
 	flag.Parse()
 }
 
@@ -61,10 +66,16 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// Initialize a new session manager
+	// TODO: Tighten up any parameters https://godoc.org/github.com/golangcollege/sessions#Session
+	session := sessions.New([]byte(cfg.secret))
+	session.Lifetime = 12 * time.Hour
+
 	// Initialize application dependencies
 	app := &application{
 		infoLog:       infoLog,
 		errorLog:      errorLog,
+		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
@@ -78,7 +89,8 @@ func main() {
 
 	// Launch server
 	infoLog.Printf("Starting server on %s\n", cfg.addr)
-	errorLog.Fatal(srv.ListenAndServe())
+	err = srv.ListenAndServe()
+	errorLog.Fatal(err)
 }
 
 // openDB is a wrapper for sql.Open()
