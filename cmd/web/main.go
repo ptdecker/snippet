@@ -93,10 +93,13 @@ func main() {
 
 	// Set up our new http.Server leveraging our leveled logging
 	srv := &http.Server{
-		Addr:      cfg.addr,
-		ErrorLog:  errorLog,
-		Handler:   app.routes(),
-		TLSConfig: tlsConfig,
+		Addr:         cfg.addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	// Launch server
