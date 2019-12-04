@@ -5,6 +5,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"log"
@@ -81,11 +82,21 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	// Custom TLS settings
+	// TODO: Consider restricting to only support strong cipher suites understanding
+	// doing so will reduce the range of supported browsers
+	// TODO: Consider restricting TLS version supported to 1.2 and 1.3
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// Set up our new http.Server leveraging our leveled logging
 	srv := &http.Server{
-		Addr:     cfg.addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:      cfg.addr,
+		ErrorLog:  errorLog,
+		Handler:   app.routes(),
+		TLSConfig: tlsConfig,
 	}
 
 	// Launch server
