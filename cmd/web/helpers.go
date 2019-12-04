@@ -35,6 +35,10 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 
 	// Populate common data
 	td.CurrentYear = time.Now().Year()
+
+	// Retreive flash message from user session (if one)
+	td.Flash = app.session.PopString(r, "flash")
+
 	return td
 }
 

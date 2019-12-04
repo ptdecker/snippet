@@ -13,6 +13,7 @@ import (
 // HTML templates. 'CurrentYear' is an example of common dynamic data
 type templateData struct {
 	CurrentYear int
+	Flash       string
 	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet

@@ -46,6 +46,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Render the template passing the snippet
 	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s,
 	})
@@ -83,6 +84,9 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	// Add a flash confirmation to the user session
+	app.session.Put(r, "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
