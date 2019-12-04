@@ -67,9 +67,10 @@ func main() {
 	}
 
 	// Initialize a new session manager
-	// TODO: Tighten up any parameters https://godoc.org/github.com/golangcollege/sessions#Session
+	// TODO: Review parameters https://godoc.org/github.com/golangcollege/sessions#Session
 	session := sessions.New([]byte(cfg.secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true
 
 	// Initialize application dependencies
 	app := &application{
@@ -89,7 +90,7 @@ func main() {
 
 	// Launch server
 	infoLog.Printf("Starting server on %s\n", cfg.addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 
