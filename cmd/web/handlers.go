@@ -62,7 +62,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve relevant data fields
+	// Retrieve and validate relevant data fields
 	form := forms.New(r.PostForm)
 	form.Required("title", "content", "expires")
 	form.MaxLength("title", 100)
@@ -100,6 +100,8 @@ func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request
 
 // signupUserForm handler
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
+
+	// Render the page
 	app.render(w, r, "signup.page.tmpl", &templateData{
 		Form: forms.New(nil),
 	})
@@ -107,6 +109,32 @@ func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
 
 // signupUser handler
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
+
+	// Parse the form data
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve and validate relevant data fields
+	form := forms.New(r.PostForm)
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+
+	// Handle errors if any were encountered
+	// If there are any errors, re-display the template passing to it the
+	// validation errors and previously submitted form data
+	if !form.Valid() {
+		app.render(w, r, "signup.page.tmpl", &templateData{
+			Form: form,
+		})
+		return
+	}
+
 	fmt.Fprintln(w, "Create a new user...")
 }
 
