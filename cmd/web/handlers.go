@@ -135,7 +135,24 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "Create a new user...")
+	// Try to create the user record in the database
+	// If an error occurs, handle the error
+	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) { // email exists already
+			form.Errors.Add("email", "Address is already in use")
+			app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		} else { // all other errors
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	// Notify the user of a successful record creation
+	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
+
+	// Redirect back to the log-in page
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
 // loginUserForm handler

@@ -80,6 +80,7 @@ func main() {
 		errorLog:      errorLog,
 		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
+		users:         &mysql.UserModel{DB: db},
 		templateCache: templateCache,
 	}
 
