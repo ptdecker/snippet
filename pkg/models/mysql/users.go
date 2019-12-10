@@ -41,6 +41,7 @@ func (m *UserModel) Insert(name, email, password string) error {
 			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "users_uc_email") {
 				return models.ErrDuplicateEmail
 			}
+			// Other specific SQL errors should be handled here
 		}
 		return err
 	}
@@ -52,7 +53,33 @@ func (m *UserModel) Insert(name, email, password string) error {
 // the provided email address and password. This will return the relevant
 // user ID if they do.
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	return 0, nil
+
+	// Retrieve the id and hashed password associated with the given email. If no
+	// matching email exists, or the user is not active, we return the
+	// ErrInvalidCredentials error.
+	var id int
+	var hashedPassword []byte
+	stmt := "SELECT id, hashed_password FROM users WHERE email = ? AND active = TRUE"
+	row := m.DB.QueryRow(stmt, email)
+	err := row.Scan(&id, &hashedPassword)
+	if err != nil && errors.Is(err, sql.ErrNoRows) { // user not found
+		return 0, models.ErrInvalidCredentials
+	}
+	if err != nil { // all other erros
+		return 0, err
+	}
+
+	// Check whether the hashed password and plain-text password provided match.
+	// If they don't, we return the ErrInvalidCredentials error.
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) { // password does not match
+		return 0, models.ErrInvalidCredentials
+	}
+	if err != nil { // all other errors
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // Get fetch details for a specific user based on their user ID.
