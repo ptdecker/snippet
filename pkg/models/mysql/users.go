@@ -84,5 +84,23 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 
 // Get fetch details for a specific user based on their user ID.
 func (m *UserModel) Get(id int) (*models.User, error) {
-	return nil, nil
+
+	// Instantiate new user model
+	u := &models.User{}
+
+	// Select SQL to retrieve a specific user from the database using their user ID
+	stmt := `SELECT id, name, email, created, active FROM users WHERE id = ?`
+
+	// Query the database and handle any errors
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Active)
+	if err != nil && errors.Is(err, sql.ErrNoRows) { // No record found
+		return nil, models.ErrNoRecord
+	}
+	if err != nil { // All other unhandled errors
+		return nil, err
+	}
+
+	// Handle response errors
+
+	return u, nil
 }

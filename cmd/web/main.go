@@ -2,6 +2,12 @@
  * Basic web site project based upon "Lets Go" book
  */
 
+//TODO: Add password reset
+//TODO:  Add a way to contact suppport
+//TODO: Add a way to cancel account and delete data
+//TODO: Add captha support
+//TODO: Add health check and handling for if database is offline
+
 package main
 
 import (
@@ -37,7 +43,13 @@ type application struct {
 	templateCache map[string]*template.Template
 }
 
-var cfg *config
+// ContextKey is used to define our own unique key for storage and retrieval of user details
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
+// Globals
+var cfg *config // App configuration driven from command-line and default parameters
 
 func init() {
 	// Retrieve command-line parameters

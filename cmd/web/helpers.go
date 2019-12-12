@@ -79,6 +79,8 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 }
 
 // isAuthenticated determines if the current request is from an authenticated user
+// by checking the request context
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.session.Exists(r, "authenticatedUserID")
+	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool) // cast the {interface} into the expected type
+	return ok && isAuthenticated
 }

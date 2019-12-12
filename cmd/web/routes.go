@@ -16,7 +16,7 @@ func (app *application) routes() http.Handler {
 
 	// Set-up dynamic middleware chain for specific requests that need
 	// session state
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 
 	// Initialize new server mux
 	mux := pat.New()
