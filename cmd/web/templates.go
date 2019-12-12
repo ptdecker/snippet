@@ -12,6 +12,7 @@ import (
 // templateData acts as a holding structure for any dynamic data passed to
 // HTML templates. 'CurrentYear' is an example of common dynamic data
 type templateData struct {
+	CSRFToken       string
 	CurrentYear     int
 	Flash           string
 	Form            *forms.Form

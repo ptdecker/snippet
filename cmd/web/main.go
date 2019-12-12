@@ -69,10 +69,13 @@ func main() {
 	}
 
 	// Initialize a new session manager
+	// NOTE:  SameSiteStrictMode means folks who come to the site by following a URL
+	//        link will be treated as unauthenticated.
 	// TODO: Review parameters https://godoc.org/github.com/golangcollege/sessions#Session
 	session := sessions.New([]byte(cfg.secret))
 	session.Lifetime = 12 * time.Hour
 	session.Secure = true
+	session.SameSite = http.SameSiteStrictMode
 
 	// Initialize application dependencies
 	app := &application{

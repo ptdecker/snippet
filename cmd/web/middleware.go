@@ -12,9 +12,12 @@
 
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
 
-import "fmt"
+	"github.com/justinas/nosurf"
+)
 
 // secureHeaders adds security improvment headers to help prevent XSS and
 // clickjacking attacks
@@ -71,4 +74,14 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 		// And call the next handler in the chain.
 		next.ServeHTTP(w, r)
 	})
+}
+
+// noSurf provides middleware that protects againt CSRF attacks when a user is using
+// a browser that does not support SameSite cookie attributes
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true, Path: "/", Secure: true,
+	})
+	return csrfHandler
 }
