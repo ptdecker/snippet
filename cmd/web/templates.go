@@ -31,7 +31,10 @@ var functions = template.FuncMap{
 // time.Time object. This function provides an example of how to use custom
 // functions in a template
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:04")
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 // newTemplateCache creates a new template cache
