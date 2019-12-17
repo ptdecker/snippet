@@ -21,17 +21,26 @@ func (app *application) routes() http.Handler {
 	// Initialize new server mux
 	mux := pat.New()
 
-	// Register page routes
+	// Register application page routes
 	//TODO: The endpoints that should not be used by authenticated users (signup and login) should also be protected
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
+
+	// Register snippet pages
 	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
 	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
+
+	// Register user management pages
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
+
+	// Register authentication and authorization pages
 	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
 	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.logoutUser))
+
+	// Handle a health checker
+	mux.Get("/ping", http.HandlerFunc(ping))
 
 	// Create a file server to serve static content
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir(cfg.staticDir)})

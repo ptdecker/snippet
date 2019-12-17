@@ -7,6 +7,8 @@
 //TODO: Add a way to cancel account and delete data
 //TODO: Add captha support
 //TODO: Add health check and handling for if database is offline
+//TODO: Add a redirect from HTTP to HTTPS
+//TODO: Add ability to close server with Ctrl-C in a nice way
 
 package main
 
