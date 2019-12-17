@@ -24,6 +24,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golangcollege/sessions"
+	"ptodd.org/snippetbox/pkg/models"
 	"ptodd.org/snippetbox/pkg/models/mysql"
 )
 
@@ -37,11 +38,19 @@ type config struct {
 
 // Application struct is used for application-wide dependencies
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	session       *sessions.Session
-	snippets      *mysql.SnippetModel
-	users         *mysql.UserModel
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	session  *sessions.Session
+	snippets interface { // Interface is used here so both mysql and mock models can be used
+		Insert(string, string, string) (int, error)
+		Get(int) (*models.Snippet, error)
+		Latest() ([]*models.Snippet, error)
+	}
+	users interface { // Interface is used here so both mysql and mock models can be used
+		Insert(string, string, string) error
+		Authenticate(string, string) (int, error)
+		Get(int) (*models.User, error)
+	}
 	templateCache map[string]*template.Template
 }
 
