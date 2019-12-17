@@ -202,3 +202,11 @@ func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Put(r, "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// ping handler
+// TODO: Why isn't this a funciton of application
+// TODO: Implement a route
+// TODO: Expand to check for database connectivity
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
