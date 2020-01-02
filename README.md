@@ -3,6 +3,7 @@
 Snippet is a demonstration site for a server-side web application implemented in Go and utilizing a limited set of third-party libraries.
 It lets you publish and view snippets of text with storage of the text on a MySQL database.
 
+
 ## Credit
 
 The code in this repository was initially based upon [Alex Edward's "Let's Go!"](https://lets-go.alexedwards.net/) e-Book.
